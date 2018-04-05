@@ -6,6 +6,13 @@ import random
 from split_train_test_video import *
 from skimage import io, color, exposure
 
+# spatial_dataset override __init__ __len__ __getitem__
+# dic_training[video:such as ApplyEyeMakeup_g12_c01 +' '+ nb_frame ] = 1
+#
+
+
+# spatial_dataloader 
+
 class spatial_dataset(Dataset):  
     def __init__(self, dic, root_dir, mode, transform=None):
  
@@ -110,7 +117,7 @@ class spatial_dataloader():
             self.dic_training[key] = self.train_video[video]
                     
     def val_sample20(self):
-        print '==> sampling testing frames'
+        print('==> sampling testing frames')
         self.dic_testing={}
         for video in self.test_video:
             nb_frame = self.frame_count[video]-10+1
@@ -127,8 +134,8 @@ class spatial_dataloader():
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
                 ]))
-        print '==> Training data :',len(training_set),'frames'
-        print training_set[1][0]['img1'].size()
+        print('==> Training data :',len(training_set),'frames')
+        print(training_set[1][0]['img1'].size())
 
         train_loader = DataLoader(
             dataset=training_set, 
@@ -144,8 +151,8 @@ class spatial_dataloader():
                 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
                 ]))
         
-        print '==> Validation data :',len(validation_set),'frames'
-        print validation_set[1][1].size()
+        print('==> Validation data :',len(validation_set),'frames')
+        print(validation_set[1][1].size())
 
         val_loader = DataLoader(
             dataset=validation_set, 
@@ -158,10 +165,20 @@ class spatial_dataloader():
 
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     
-    dataloader = spatial_dataloader(BATCH_SIZE=1, num_workers=1, 
-                                path='/home/ubuntu/data/UCF101/spatial_no_sampled/', 
-                                ucf_list='/home/ubuntu/cvlab/pytorch/ucf101_two_stream/github/UCF_list/',
-                                ucf_split='01')
-    train_loader,val_loader,test_video = dataloader.run()
+#     dataloader = spatial_dataloader(BATCH_SIZE=1, num_workers=1, 
+#                                 path='/home/ubuntu/data/UCF101/spatial_no_sampled/', 
+#                                 ucf_list='/home/ubuntu/cvlab/pytorch/ucf101_two_stream/github/UCF_list/',
+#                                 ucf_split='01')
+#     train_loader,val_loader,test_video = dataloader.run()
+if __name__ == '__main__':
+    with open('dic/frame_count.pickle','rb') as file:
+        dic_frame = pickle.load(file)
+    file.close()
+
+    print(len(dic_frame))
+    print('v_ApplyEyeMakeup_g01_c01.avi frame:',dic_frame['v_ApplyEyeMakeup_g01_c01.avi'])
+    print('v_ApplyEyeMakeup_g01_c02.avi frame:',dic_frame['v_ApplyEyeMakeup_g01_c02.avi'])
+    print('v_ApplyEyeMakeup_g01_c03.avi frame:',dic_frame['v_ApplyEyeMakeup_g01_c03.avi'])
+
