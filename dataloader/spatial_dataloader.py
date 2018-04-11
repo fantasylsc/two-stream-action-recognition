@@ -3,7 +3,9 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 import random
-from split_train_test_video import *
+from dataloader.split_train_test_video import *
+# from split_train_test_video import *
+
 from skimage import io, color, exposure
 
 # spatial_dataset override __init__ __len__ __getitem__
@@ -16,22 +18,22 @@ from skimage import io, color, exposure
 class spatial_dataset(Dataset):  
     def __init__(self, dic, root_dir, mode, transform=None):
  
-        self.keys = dic.keys()
-        self.values=dic.values()
+        self.keys = list(dic.keys())
+        self.values=list(dic.values())
         self.root_dir = root_dir
         self.mode =mode
         self.transform = transform
 
     def __len__(self):
         return len(self.keys)
-
+    # path='/home/ubuntu/data/UCF101/spatial_no_sampled/'
     def load_ucf_image(self,video_name, index):
         if video_name.split('_')[0] == 'HandstandPushups':
             n,g = video_name.split('_',1)
             name = 'HandStandPushups_'+g
-            path = self.root_dir + 'HandstandPushups'+'/separated_images/v_'+name+'/v_'+name+'_'
+            path = self.root_dir + 'HandstandPushups'+'/v_'+name+'/v_'+name+'_frame_'
         else:
-            path = self.root_dir + video_name.split('_')[0]+'/separated_images/v_'+video_name+'/v_'+video_name+'_'
+            path = self.root_dir + video_name.split('_')[0]+'/v_'+video_name+'/v_'+video_name+'_frame_'
          
         img = Image.open(path +str(index)+'.jpg')
         transformed_img = self.transform(img)
@@ -45,9 +47,9 @@ class spatial_dataset(Dataset):
             video_name, nb_clips = self.keys[idx].split(' ')
             nb_clips = int(nb_clips)
             clips = []
-            clips.append(random.randint(1, nb_clips/3))
-            clips.append(random.randint(nb_clips/3, nb_clips*2/3))
-            clips.append(random.randint(nb_clips*2/3, nb_clips+1))
+            clips.append(random.randint(1, int(nb_clips/3)))
+            clips.append(random.randint(int(nb_clips/3), int(nb_clips*2/3)))
+            clips.append(random.randint(int(nb_clips*2/3), int(nb_clips+1)))
             
         elif self.mode == 'val':
             video_name, index = self.keys[idx].split(' ')
@@ -87,7 +89,8 @@ class spatial_dataloader():
 
     def load_frame_count(self):
         #print '==> Loading frame number of each video'
-        with open('dic/frame_count.pickle','rb') as file:
+        with open('dataloader/dic/frame_count.pickle','rb') as file:
+        # with open('dic/frame_count.pickle','rb') as file:
             dic_frame = pickle.load(file)
         file.close()
 
@@ -112,7 +115,7 @@ class spatial_dataloader():
         self.dic_training={}
         for video in self.train_video:
             #print videoname
-            nb_frame = self.frame_count[video]-10+1
+            nb_frame = self.frame_count[video]-10+1 
             key = video+' '+ str(nb_frame)
             self.dic_training[key] = self.train_video[video]
                     
@@ -165,20 +168,19 @@ class spatial_dataloader():
 
 
 
-# if __name__ == '__main__':
-    
-#     dataloader = spatial_dataloader(BATCH_SIZE=1, num_workers=1, 
-#                                 path='/home/ubuntu/data/UCF101/spatial_no_sampled/', 
-#                                 ucf_list='/home/ubuntu/cvlab/pytorch/ucf101_two_stream/github/UCF_list/',
-#                                 ucf_split='01')
-#     train_loader,val_loader,test_video = dataloader.run()
 if __name__ == '__main__':
-    with open('dic/frame_count.pickle','rb') as file:
-        dic_frame = pickle.load(file)
-    file.close()
+    
+    dataloader = spatial_dataloader(BATCH_SIZE=1, num_workers=1, 
+                                path='/media/lsc/DATA/Data/UCF101/spatial_no_sampled/', 
+                                ucf_list='/media/lsc/DATA/github/two-stream-action-recognition/UCF_list/',
+                                ucf_split='01')
+    train_loader,val_loader,test_video = dataloader.run()
 
-    print(len(dic_frame))
-    print('v_ApplyEyeMakeup_g01_c01.avi frame:',dic_frame['v_ApplyEyeMakeup_g01_c01.avi'])
-    print('v_ApplyEyeMakeup_g01_c02.avi frame:',dic_frame['v_ApplyEyeMakeup_g01_c02.avi'])
-    print('v_ApplyEyeMakeup_g01_c03.avi frame:',dic_frame['v_ApplyEyeMakeup_g01_c03.avi'])
+# if __name__ == '__main__':
+#     with open('dic/frame_count.pickle','rb') as file:
+#         dic_frame = pickle.load(file)
+#     file.close()
+
+#     print(len(dic_frame))
+
 

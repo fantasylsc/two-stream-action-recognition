@@ -22,9 +22,10 @@ from network import *
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-parser = argparse.ArgumentParser(description='UCF101 spatial stream on resnet101')
-parser.add_argument('--epochs', default=500, type=int, metavar='N', help='number of total epochs')
-parser.add_argument('--batch-size', default=25, type=int, metavar='N', help='mini-batch size (default: 25)')
+#default epochs=500 original resnet101
+parser = argparse.ArgumentParser(description='UCF101 spatial stream on resnet18')
+parser.add_argument('--epochs', default=10, type=int, metavar='N', help='number of total epochs')
+parser.add_argument('--batch-size', default=50, type=int, metavar='N', help='mini-batch size (default: 25)')
 parser.add_argument('--lr', default=5e-4, type=float, metavar='LR', help='initial learning rate')
 parser.add_argument('--evaluate', dest='evaluate', action='store_true', help='evaluate model on validation set')
 parser.add_argument('--resume', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
@@ -33,14 +34,14 @@ parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='man
 def main():
     global arg
     arg = parser.parse_args()
-    print arg
+    print(arg)
 
     #Prepare DataLoader
     data_loader = dataloader.spatial_dataloader(
                         BATCH_SIZE=arg.batch_size,
-                        num_workers=8,
-                        path='/home/ubuntu/data/UCF101/spatial_no_sampled/',
-                        ucf_list ='/home/ubuntu/cvlab/pytorch/ucf101_two_stream/github/UCF_list/',
+                        num_workers=12,
+                        path='/media/lsc/DATA/Data/UCF101/spatial_no_sampled/',
+                        ucf_list ='/media/lsc/DATA/github/two-stream-action-recognition/UCF_list/',
                         ucf_split ='01', 
                         )
     
@@ -74,9 +75,9 @@ class Spatial_CNN():
         self.test_video=test_video
 
     def build_model(self):
-        print ('==> Build model and setup loss and optimizer')
+        print('==> Build model and setup loss and optimizer')
         #build model
-        self.model = resnet101(pretrained= True, channel=3).cuda()
+        self.model = resnet18(pretrained= True, channel=3).cuda()
         #Loss function and optimizer
         self.criterion = nn.CrossEntropyLoss().cuda()
         self.optimizer = torch.optim.SGD(self.model.parameters(), self.lr, momentum=0.9)
@@ -172,11 +173,11 @@ class Spatial_CNN():
             end = time.time()
         
         info = {'Epoch':[self.epoch],
-                'Batch Time':[round(batch_time.avg,3)],
-                'Data Time':[round(data_time.avg,3)],
-                'Loss':[round(losses.avg,5)],
-                'Prec@1':[round(top1.avg,4)],
-                'Prec@5':[round(top5.avg,4)],
+                'Batch Time':[np.round(batch_time.avg,3)],
+                'Data Time':[np.round(data_time.avg,3)],
+                'Loss':[np.round(losses.avg,5)],
+                'Prec@1':[np.round(top1.avg,4)],
+                'Prec@5':[np.round(top5.avg,4)],
                 'lr': self.optimizer.param_groups[0]['lr']
                 }
         record_info(info, 'record/spatial/rgb_train.csv','train')
@@ -217,10 +218,10 @@ class Spatial_CNN():
             
 
         info = {'Epoch':[self.epoch],
-                'Batch Time':[round(batch_time.avg,3)],
-                'Loss':[round(video_loss,5)],
-                'Prec@1':[round(video_top1,3)],
-                'Prec@5':[round(video_top5,3)]}
+                'Batch Time':[np.round(batch_time.avg,3)],
+                'Loss':[np.round(video_loss,5)],
+                'Prec@1':[np.round(video_top1,3)],
+                'Prec@5':[np.round(video_top5,3)]}
         record_info(info, 'record/spatial/rgb_test.csv','test')
         return video_top1, video_loss
 
