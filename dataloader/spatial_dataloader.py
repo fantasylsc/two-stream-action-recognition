@@ -3,8 +3,8 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 import random
-from dataloader.split_train_test_video import *
-# from split_train_test_video import *
+# from dataloader.split_train_test_video import *
+from split_train_test_video import *
 
 from skimage import io, color, exposure
 
@@ -89,7 +89,7 @@ class spatial_dataloader():
 
     def load_frame_count(self):
         #print '==> Loading frame number of each video'
-        with open('dataloader/dic/frame_count.pickle','rb') as file:
+        with open('/media/lsc/DATA/github/two-stream-action-recognition/dataloader/dic/frame_count.pickle','rb') as file:
         # with open('dic/frame_count.pickle','rb') as file:
             dic_frame = pickle.load(file)
         file.close()
@@ -137,7 +137,7 @@ class spatial_dataloader():
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
                 ]))
-        print('==> Training data :',len(training_set),'frames')
+        print('==> Training data :',len(training_set),'videos')
         print(training_set[1][0]['img1'].size())
 
         train_loader = DataLoader(
@@ -156,6 +156,8 @@ class spatial_dataloader():
         
         print('==> Validation data :',len(validation_set),'frames')
         print(validation_set[1][1].size())
+        print(validation_set[0][0])
+        print(validation_set[0][2])
 
         val_loader = DataLoader(
             dataset=validation_set, 
@@ -175,6 +177,9 @@ if __name__ == '__main__':
                                 ucf_list='/media/lsc/DATA/github/two-stream-action-recognition/UCF_list/',
                                 ucf_split='01')
     train_loader,val_loader,test_video = dataloader.run()
+
+    for i, (data_dict,label) in enumerate(train_loader):
+        print(label)
 
 # if __name__ == '__main__':
 #     with open('dic/frame_count.pickle','rb') as file:

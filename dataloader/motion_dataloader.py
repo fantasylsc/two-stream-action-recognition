@@ -28,7 +28,7 @@ class motion_dataset(Dataset):
         self.in_channel = in_channel
         self.img_rows=224
         self.img_cols=224
-
+    # self.root_dir+ 'u/' + name+'/' + frame_idx +'.jpg'
     def stackopf(self):
         name = 'v_'+self.video
         u = self.root_dir+ 'u/' + name

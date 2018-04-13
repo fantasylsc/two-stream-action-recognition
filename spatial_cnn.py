@@ -24,8 +24,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 #default epochs=500 original resnet101
 parser = argparse.ArgumentParser(description='UCF101 spatial stream on resnet18')
-parser.add_argument('--epochs', default=10, type=int, metavar='N', help='number of total epochs')
-parser.add_argument('--batch-size', default=50, type=int, metavar='N', help='mini-batch size (default: 25)')
+parser.add_argument('--epochs', default=1, type=int, metavar='N', help='number of total epochs')
+parser.add_argument('--batch-size', default=32, type=int, metavar='N', help='mini-batch size (default: 25)')
 parser.add_argument('--lr', default=5e-4, type=float, metavar='LR', help='initial learning rate')
 parser.add_argument('--evaluate', dest='evaluate', action='store_true', help='evaluate model on validation set')
 parser.add_argument('--resume', default='', type=str, metavar='PATH', help='path to latest checkpoint (default: none)')
@@ -139,7 +139,8 @@ class Spatial_CNN():
         # mini-batch training
         progress = tqdm(self.train_loader)
         for i, (data_dict,label) in enumerate(progress):
-
+            #len(data_dict)=3  len(data_dict['img1']=batch size
+            print('=====>Test====data_dic', 'len(data_dict):',len(data_dict),'len(data_dict[''img1'']):',len(data_dict['img1']))
     
             # measure data loading time
             data_time.update(time.time() - end)
