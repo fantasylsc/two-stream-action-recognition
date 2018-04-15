@@ -3,8 +3,8 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 import random
-# from dataloader.split_train_test_video import *
-from split_train_test_video import *
+from dataloader.split_train_test_video import *
+# from split_train_test_video import *
 
 from skimage import io, color, exposure
 

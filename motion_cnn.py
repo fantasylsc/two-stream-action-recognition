@@ -21,10 +21,10 @@ from network import *
 import dataloader
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-parser = argparse.ArgumentParser(description='UCF101 motion stream on resnet101')
-parser.add_argument('--epochs', default=500, type=int, metavar='N', help='number of total epochs')
+parser = argparse.ArgumentParser(description='UCF101 motion stream on resnet18')
+parser.add_argument('--epochs', default=2, type=int, metavar='N', help='number of total epochs')
 parser.add_argument('--batch-size', default=64, type=int, metavar='N', help='mini-batch size (default: 64)')
 parser.add_argument('--lr', default=1e-2, type=float, metavar='LR', help='initial learning rate')
 parser.add_argument('--evaluate', dest='evaluate', action='store_true', help='evaluate model on validation set')
@@ -34,14 +34,14 @@ parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='man
 def main():
     global arg
     arg = parser.parse_args()
-    print arg
+    print(arg)
 
     #Prepare DataLoader
     data_loader = dataloader.Motion_DataLoader(
                         BATCH_SIZE=arg.batch_size,
                         num_workers=8,
-                        path='/home/ubuntu/data/UCF101/tvl1_flow/',
-                        ucf_list='/home/ubuntu/cvlab/pytorch/ucf101_two_stream/github/UCF_list/',
+                        path='/data/tvl1_flow/',
+                        ucf_list='/media/lsc/DATA/github/two-stream-action-recognition/UCF_list/',
                         ucf_split='01',
                         in_channel=10,
                         )
@@ -81,9 +81,9 @@ class Motion_CNN():
         self.test_video=test_video
 
     def build_model(self):
-        print ('==> Build model and setup loss and optimizer')
+        print('==> Build model and setup loss and optimizer')
         #build model
-        self.model = resnet101(pretrained= True, channel=self.channel).cuda()
+        self.model = resnet18(pretrained= True, channel=self.channel).cuda()
         #print self.model
         #Loss function and optimizer
         self.criterion = nn.CrossEntropyLoss().cuda()
@@ -122,7 +122,7 @@ class Motion_CNN():
             # save model
             if is_best:
                 self.best_prec1 = prec1
-                with open('record/motion/motion_video_preds.pickle','wb') as f:
+                with open('/media/lsc/DATA/github/two-stream-action-recognition/record/motion/motion_video_preds.pickle','wb') as f:
                     pickle.dump(self.dic_video_level_preds,f)
                 f.close() 
             
@@ -131,7 +131,7 @@ class Motion_CNN():
                 'state_dict': self.model.state_dict(),
                 'best_prec1': self.best_prec1,
                 'optimizer' : self.optimizer.state_dict()
-            },is_best,'record/motion/checkpoint.pth.tar','record/motion/model_best.pth.tar')
+            },is_best,'/media/lsc/DATA/github/two-stream-action-recognition/record/motion/checkpoint.pth.tar','/media/lsc/DATA/github/two-stream-action-recognition/record/motion/model_best.pth.tar')
 
     def train_1epoch(self):
         print('==> Epoch:[{0}/{1}][training stage]'.format(self.epoch, self.nb_epochs))
@@ -175,11 +175,11 @@ class Motion_CNN():
             end = time.time()
         
         info = {'Epoch':[self.epoch],
-                'Batch Time':[round(batch_time.avg,3)],
-                'Data Time':[round(data_time.avg,3)],
-                'Loss':[round(losses.avg,5)],
-                'Prec@1':[round(top1.avg,4)],
-                'Prec@5':[round(top5.avg,4)],
+                'Batch Time':[np.round(batch_time.avg,3)],
+                'Data Time':[np.round(data_time.avg,3)],
+                'Loss':[np.round(losses.avg,5)],
+                'Prec@1':[np.round(top1.avg,4)],
+                'Prec@5':[np.round(top5.avg,4)],
                 'lr': self.optimizer.param_groups[0]['lr']
                 }
         record_info(info, 'record/motion/opf_train.csv','train')
@@ -222,10 +222,10 @@ class Motion_CNN():
         #Frame to video level accuracy
         video_top1, video_top5, video_loss = self.frame2_video_level_accuracy()
         info = {'Epoch':[self.epoch],
-                'Batch Time':[round(batch_time.avg,3)],
-                'Loss':[round(video_loss,5)],
-                'Prec@1':[round(video_top1,3)],
-                'Prec@5':[round(video_top5,3)]
+                'Batch Time':[np.round(batch_time.avg,3)],
+                'Loss':[np.round(video_loss,5)],
+                'Prec@1':[np.round(video_top1,3)],
+                'Prec@5':[np.round(video_top5,3)]
                 }
         record_info(info, 'record/motion/opf_test.csv','test')
         return video_top1, video_loss
