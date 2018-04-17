@@ -2,6 +2,7 @@ import os, pickle
 
 # splitter.split_video() return train_video and test_video dic
 # format in Train Test list ApplyEyeMakeup/v_ApplyEyeMakeup_g12_c01.avi 1
+# video = v_ApplyEyeMakeup_g12_c01.avi key = ApplyEyeMakeup_g12_c01
 # train_video['ApplyEyeMakeup_g12_c01'] = 1 
 
 class UCF101_splitter():
